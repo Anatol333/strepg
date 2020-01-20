@@ -1,17 +1,24 @@
 package com.my.kozhukhar.server;
 
+import com.my.kozhukhar.communication.handler.ServerCommHandler;
 import com.my.kozhukhar.exception.AppException;
 import com.my.kozhukhar.message.ErrorMessages;
 import com.my.kozhukhar.message.Messages;
+import lombok.Data;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
+@Data
 public class Server {
 
     private int port;
+
+    private Boolean interrupted;
 
     private static final Logger LOG = Logger.getLogger(Server.class);
 
@@ -20,15 +27,16 @@ public class Server {
     }
 
     public void start() throws AppException {
+        interrupted = false;
+        ServerCommHandler handler = new ServerCommHandler();
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             LOG.info(Messages.SERVER_WAS_STARTED);
 
-            while (true) {
+            while (!interrupted) {
                 Socket connectionSocket = serverSocket.accept();
                 LOG.info(Messages.USER_WAS_CONNECTED);
-                connectionSocket.close();
-                LOG.info(Messages.USER_WAS_DISCONNECTED);
+                handler.addSocket(connectionSocket);
             }
 
         } catch (IOException ex) {

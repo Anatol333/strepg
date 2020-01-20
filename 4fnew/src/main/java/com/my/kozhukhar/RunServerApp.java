@@ -9,7 +9,7 @@ public class RunServerApp {
 
     private static final Logger LOG = Logger.getLogger(RunServerApp.class.getName());
 
-    private static int PORT = 5555;
+    private static int PORT = 5500;
 
     public static void main(String[] args) throws AppException {
         BasicConfigurator.configure();
