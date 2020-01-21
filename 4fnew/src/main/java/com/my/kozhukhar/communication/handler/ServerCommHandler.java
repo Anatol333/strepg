@@ -1,7 +1,8 @@
 package com.my.kozhukhar.communication.handler;
 
 import com.my.kozhukhar.message.Messages;
-import com.my.kozhukhar.server.SocketAction;
+import com.my.kozhukhar.server.MessageSender;
+import com.my.kozhukhar.server.SocketMonitoring;
 import com.my.kozhukhar.server.SocketReceiving;
 import org.apache.log4j.Logger;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class ServerCommHandler {
 
-    private List<SocketAction> allClients;
+    private List<SocketMonitoring> allClients;
 
     private static final String SPLITTER = ":";
 
@@ -22,19 +23,20 @@ public class ServerCommHandler {
     }
 
     public void addSocket(Socket connectionSocket) {
-        SocketAction socketAction = new SocketAction(connectionSocket, allClients);
+        SocketMonitoring socketMonitoring = new SocketMonitoring(connectionSocket, allClients);
         SocketReceiving socketReceiving = new SocketReceiving(connectionSocket, allClients);
-        allClients.add(socketAction);
+        allClients.add(socketMonitoring);
 
-        initActions(socketAction, socketReceiving);
+        initActions(socketMonitoring, socketReceiving);
 
-        socketAction.setMessageForAll(
-                connectionSocket.getInetAddress() + SPLITTER + Messages.YOU_ARE_CONNECTED
+        socketMonitoring.setMessageForAll(
+                connectionSocket.getInetAddress() + SPLITTER + Messages.NEW_ARE_CONNECTED
         );
     }
 
-    private void initActions(SocketAction socketAction, SocketReceiving socketReceiving) {
-        new Thread(socketAction).start();
+    private void initActions(SocketMonitoring socketMonitoring, SocketReceiving socketReceiving) {
+        new Thread(socketMonitoring).start();
         new Thread(socketReceiving).start();
+        new Thread(new MessageSender(allClients, this)).start();
     }
 }

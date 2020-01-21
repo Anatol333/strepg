@@ -8,7 +8,7 @@ public class RunClientApp {
 
     public static void main(String[] args) throws AppException {
         BasicConfigurator.configure();
-        Client client = new Client("localhost", 5500);
+        Client client = new Client("localhost", 5555);
         client.connect();
     }
 

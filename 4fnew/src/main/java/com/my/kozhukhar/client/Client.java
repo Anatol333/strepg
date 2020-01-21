@@ -55,13 +55,12 @@ public class Client {
                 System.out.println(reader.readLine());
             } catch (IOException ex) {
                 ex.printStackTrace();
-            } 
+            }
         }
     }
 
     private void send(PrintWriter out, Scanner scan) {
         while (!Thread.currentThread().isInterrupted()) {
-            System.out.print("[MSG]:");
             String line = scan.nextLine();
             out.println(line);
             out.flush();
