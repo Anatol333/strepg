@@ -1,6 +1,5 @@
 package com.my.kozhukhar.server;
 
-import com.my.kozhukhar.communication.handler.ServerCommHandler;
 import com.my.kozhukhar.exception.AppException;
 import com.my.kozhukhar.message.ErrorMessages;
 import com.my.kozhukhar.message.Messages;
@@ -10,8 +9,6 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class Server {

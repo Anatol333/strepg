@@ -1,4 +1,4 @@
-package com.my.kozhukhar.server;
+package com.my.kozhukhar.server.process;
 
 import com.my.kozhukhar.message.Messages;
 import org.apache.log4j.Logger;
@@ -8,21 +8,21 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
 
-public class SocketMonitoring implements Runnable {
+public class ServerSender implements Runnable {
 
     private String message;
 
     private Socket clientSocket;
 
-    private List<SocketMonitoring> allClients;
+    private List<ServerSender> allClients;
 
     private PrintWriter printWriter;
 
     private boolean isInterrupted;
 
-    private static final Logger LOG = Logger.getLogger(SocketMonitoring.class);
+    private static final Logger LOG = Logger.getLogger(ServerSender.class);
 
-    public SocketMonitoring(Socket clientSocket, List<SocketMonitoring> allClients) {
+    public ServerSender(Socket clientSocket, List<ServerSender> allClients) {
         this.clientSocket = clientSocket;
         this.allClients = allClients;
         initPrintWriter();
@@ -35,7 +35,6 @@ public class SocketMonitoring implements Runnable {
             e.printStackTrace();
         }
     }
-
 
     public void run() {
         while (!clientSocket.isClosed()) {

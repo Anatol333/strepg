@@ -1,4 +1,4 @@
-package com.my.kozhukhar.server;
+package com.my.kozhukhar.server.process;
 
 import com.my.kozhukhar.message.ErrorMessages;
 import org.apache.log4j.Logger;
@@ -10,15 +10,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SocketReceiving implements Runnable {
+public class ServerReceiver implements Runnable {
 
-    private List<SocketMonitoring> allClients;
+    private List<ServerSender> allClients;
 
     private Socket clientSocket;
 
-    private static final Logger LOG = Logger.getLogger(SocketReceiving.class);
+    private static final Logger LOG = Logger.getLogger(ServerReceiver.class);
 
-    public SocketReceiving(Socket clientSocket, List<SocketMonitoring> allClients) {
+    public ServerReceiver(Socket clientSocket, List<ServerSender> allClients) {
         this.allClients = allClients;
         this.clientSocket = clientSocket;
     }
@@ -29,14 +29,12 @@ public class SocketReceiving implements Runnable {
         DataInputStream dataInputStream = null;
         try {
             while (clientSocket.isConnected()) {
-
                 inputStream = clientSocket.getInputStream();
                 dataInputStream = new DataInputStream(inputStream);
-                String newMessage = dataInputStream.readLine();
+                String newMessage = dataInputStream.readUTF();
 
-                List<SocketMonitoring> clientsTemp = new ArrayList<>(allClients);
+                List<ServerSender> clientsTemp = new ArrayList<>(allClients);
                 clientsTemp.forEach(client -> client.setMessageForAll(newMessage));
-
             }
         } catch (IOException ex) {
             LOG.error(ErrorMessages.CANNOT_READ_THR_CLOSED);

@@ -1,15 +1,17 @@
 package com.my.kozhukhar.client;
 
+import com.my.kozhukhar.client.process.ClientReceiver;
+import com.my.kozhukhar.client.process.ClientSender;
 import com.my.kozhukhar.exception.AppException;
 import com.my.kozhukhar.message.ErrorMessages;
 import com.my.kozhukhar.message.Messages;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -19,7 +21,11 @@ public class Client {
 
     private String host;
 
-    private static final Logger LOG = Logger.getLogger(Client.class.getName());
+    private Integer sleepTimeMls;
+
+    private static final Integer DEF_SLEEP_TIME_MLS = 10_000;
+
+    private static final Logger LOG = Logger.getLogger(Client.class);
 
     private static final String FORMAT = "UTF-8";
 
@@ -29,41 +35,33 @@ public class Client {
     }
 
     public void connect() throws AppException {
+        if (sleepTimeMls == null) {
+            sleepTimeMls = DEF_SLEEP_TIME_MLS;
+        }
         try {
             Socket socket = new Socket(host, port);
-            LOG.info(Messages.SUCCESS_CONNECTION);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println(reader.readLine());
+            successMessage(reader);
 
-            handler(socket, reader);
+            handler(socket.getOutputStream(), reader);
         } catch (IOException ex) {
             throw new AppException(ErrorMessages.ERROR_CONNECTION, ex);
         }
     }
 
-    private void handler(Socket socket, BufferedReader reader) throws IOException {
-        PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), FORMAT));
+    private void handler(OutputStream out, BufferedReader reader) {
         Scanner scan = new Scanner(System.in, FORMAT);
 
-        new Thread(() -> send(out, scan)).start();
-        new Thread(() -> receive(reader)).start();
+        new Thread(new ClientSender(scan, out, sleepTimeMls)).start();
+        new Thread(new ClientReceiver(reader, sleepTimeMls)).start();
     }
 
-    private void receive(BufferedReader reader) {
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                System.out.println(reader.readLine());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+    private void successMessage(BufferedReader reader) throws IOException {
+        LOG.info(Messages.SUCCESS_CONNECTION);
+        System.out.println(reader.readLine());
     }
 
-    private void send(PrintWriter out, Scanner scan) {
-        while (!Thread.currentThread().isInterrupted()) {
-            String line = scan.nextLine();
-            out.println(line);
-            out.flush();
-        }
+    public void setSleepTimeMls(Integer sleepTimeMls) {
+        this.sleepTimeMls = sleepTimeMls;
     }
 }
